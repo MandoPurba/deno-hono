@@ -12,6 +12,17 @@ export class ClientRepository implements IClientRepository {
             .collection<Client>('clients');
     }
 
+    veryfyClientSecret(client: Client, clientSecret: string): Promise<Client | null> {
+        return this.collection.findOne<Client>({
+            clientId: client.clientId,
+            clientSecret: this.hashSercret(clientSecret),
+        });
+    }
+
+    findByClientId(clientId: string): Promise<Client | null> {
+        return this.collection.findOne<Client>({ clientId });
+    }
+
     async create(createClientDto: CREATE_CLIENT_DTO): Promise<Client> {
         try {
             const { clientId, clientSecret } = this.generateClientCredentials();

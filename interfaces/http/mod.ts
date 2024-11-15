@@ -26,19 +26,38 @@ class DIContainer {
 
 const container = new DIContainer();
 // Infrastructure
-container.register('MongoAdapter', new MongoAdapter('mongodb://localhost:27017/my-app'));
+container.register(
+    'MongoAdapter',
+    new MongoAdapter(
+        Deno.env.get('MONGO_URL') ??
+            'mongodb://root:example@localhost:27017/deno_hono?authSource=admin',
+    ),
+);
 
 // Repositories
-container.register('ClientRepository', new ClientRepository(container.get<MongoAdapter>('MongoAdapter')));
+container.register(
+    'ClientRepository',
+    new ClientRepository(container.get<MongoAdapter>('MongoAdapter')),
+);
 
 // UseCases
 container.register(
     'CreateClientUseCase',
     new CreateClientUseCase(container.get<ClientRepository>('ClientRepository')),
 );
+container.register(
+    'VerifyClientUseCase',
+    new VerifyClientUseCase(container.get<ClientRepository>('ClientRepository')),
+);
 
 // Container
-container.register('AuthController', new AuthController(container.get<CreateClientUseCase>('CreateClientUseCase')));
+container.register(
+    'AuthController',
+    new AuthController(
+        container.get<CreateClientUseCase>('CreateClientUseCase'),
+        container.get<VerifyClientUseCase>('VerifyClientUseCase'),
+    ),
+);
 
 export class HttpModule {
     authRoutes(app: Hono) {
