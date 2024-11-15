@@ -12,5 +12,7 @@ export class MongoAdapter {
         await this.client.connect();
     }
 
-    getDatabase(name: string) { return this.client.db(name); }
+    getDatabase(name: string) {
+        return this.client.db(name);
+    }
 }

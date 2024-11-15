@@ -1,7 +1,8 @@
 {
     "imports": {
         "hono": "jsr:@hono/hono@^4.6.10",
-        "mongodb": "npm:mongodb@^6.10.0"
+        "mongodb": "npm:mongodb@^6.10.0",
+        "zod": "https://deno.land/x/zod@v3.23.8/mod.ts"
     },
     "tasks": {
         "start": "deno run -ERNS --env --watch main.ts"
@@ -14,7 +15,7 @@
         "indentWidth": 4,
         "singleQuote": true,
         "semiColons": true,
-        "lineWidth": 150
+        "lineWidth": 100
     },
     "nodeModulesDir": "auto"
 }

@@ -1,0 +1,21 @@
+services:
+  mongo:
+    image: mongo:latest       # Menggunakan image MongoDB terbaru
+    container_name: mongo-db  # Nama container MongoDB
+    ports:
+      - "27017:27017"         # Memetakan port 27017 MongoDB ke host
+    volumes:
+      - mongo-data:/data/db   # Menyimpan data MongoDB di volume terpisah
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root  # Username admin MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: example  # Password admin MongoDB
+    networks:
+      - mongo-network
+
+volumes:
+  mongo-data:                 # Volume untuk data MongoDB
+    driver: local
+
+networks:
+  mongo-network:              # Jaringan terpisah untuk MongoDB
+    driver: bridge

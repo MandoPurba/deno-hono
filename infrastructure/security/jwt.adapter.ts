@@ -3,7 +3,10 @@ import { sign, verify } from 'hono/jwt';
 export class JwtAdapter {
     constructor(readonly secret: string) {}
 
-    async sign(payload: Record<string, unknown>, expiresIn: number): Promise<string> {
+    async sign(
+        payload: Record<string, unknown>,
+        expiresIn: number,
+    ): Promise<string> {
         const key = await crypto.subtle.importKey(
             'raw',
             new TextEncoder().encode(this.secret),

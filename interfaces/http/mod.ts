@@ -6,17 +6,46 @@ import { CreateTokenUseCase } from '../../domain/usecase/auth/create-token.useca
 import { ClientRepository } from '../../infrastructure/repositories/client.repository.ts';
 import { MongoAdapter } from '../../infrastructure/database/mongo.adapter.ts';
 import { JwtAdapter } from '../../infrastructure/security/jwt.adapter.ts';
+import { CreateClientUseCase } from '../../domain/usecase/auth/create-client.usecase.ts';
+
+class DIContainer {
+    private container: Map<string, unknown> = new Map();
+
+    register(name: string, value: unknown): void {
+        this.container.set(name, value);
+    }
+
+    get<T>(name: string): T {
+        const resolved = this.container.get(name);
+        if (!resolved) {
+            throw new Error(`Dependency ${name} not found`);
+        }
+        return resolved as T;
+    }
+}
+
+const container = new DIContainer();
+// Infrastructure
+container.register('MongoAdapter', new MongoAdapter('mongodb://localhost:27017/my-app'));
+
+// Repositories
+container.register('ClientRepository', new ClientRepository(container.get<MongoAdapter>('MongoAdapter')));
+
+// UseCases
+container.register(
+    'CreateClientUseCase',
+    new CreateClientUseCase(container.get<ClientRepository>('ClientRepository')),
+);
+
+// Container
+container.register('AuthController', new AuthController(container.get<CreateClientUseCase>('CreateClientUseCase')));
 
 export class HttpModule {
     authRoutes(app: Hono) {
+        const authController = container.get<AuthController>('AuthController');
         app.route(
             'auth',
-            createAuthRoutes(
-                new AuthController(
-                    new VerifyClientUseCase(new ClientRepository(new MongoAdapter('mongodb://localhost:27017'))),
-                    new CreateTokenUseCase(new JwtAdapter('secret')),
-                ),
-            ),
+            createAuthRoutes(authController),
         );
     }
 
